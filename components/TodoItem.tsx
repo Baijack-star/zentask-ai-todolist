@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Todo } from '../types';
+import { Todo, Priority } from '../types';
 
 interface TodoItemProps {
   todo: Todo;
@@ -9,6 +9,31 @@ interface TodoItemProps {
 }
 
 export const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete }) => {
+  const getPriorityBadge = (priority: Priority) => {
+    switch (priority) {
+      case Priority.HIGH:
+        return (
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-rose-50 text-rose-600 border border-rose-100">
+            High
+          </span>
+        );
+      case Priority.MEDIUM:
+        return (
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-600 border border-amber-100">
+            Med
+          </span>
+        );
+      case Priority.LOW:
+        return (
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-100">
+            Low
+          </span>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <li className={`group flex items-start gap-4 p-5 hover:bg-slate-50 transition-colors ${todo.completed ? 'opacity-75' : ''}`}>
       <button
@@ -27,13 +52,16 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete }) 
       </button>
 
       <div className="flex-grow min-w-0">
-        <h3 className={`text-base font-semibold transition-all truncate ${
-          todo.completed ? 'text-slate-400 line-through' : 'text-slate-800'
-        }`}>
-          {todo.title}
-        </h3>
+        <div className="flex items-center gap-2 mb-0.5">
+          <h3 className={`text-base font-semibold transition-all truncate ${
+            todo.completed ? 'text-slate-400 line-through' : 'text-slate-800'
+          }`}>
+            {todo.title}
+          </h3>
+          {!todo.completed && getPriorityBadge(todo.priority)}
+        </div>
         {todo.description && (
-          <p className={`mt-1 text-sm transition-all ${
+          <p className={`mt-0.5 text-sm transition-all ${
             todo.completed ? 'text-slate-300' : 'text-slate-500'
           }`}>
             {todo.description}

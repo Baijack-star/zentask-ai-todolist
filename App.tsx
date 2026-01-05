@@ -5,7 +5,7 @@ import { TodoForm } from './components/TodoForm';
 import { TodoItem } from './components/TodoItem';
 import { TodoFilters } from './components/TodoFilters';
 import { Stats } from './components/Stats';
-import { Todo, FilterStatus } from './types';
+import { Todo, FilterStatus, Priority } from './types';
 
 const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>(() => {
@@ -18,12 +18,13 @@ const App: React.FC = () => {
     localStorage.setItem('zentask_todos', JSON.stringify(todos));
   }, [todos]);
 
-  const addTodo = (title: string, description: string) => {
+  const addTodo = (title: string, description: string, priority: Priority) => {
     const newTodo: Todo = {
       id: crypto.randomUUID(),
       title,
       description,
       completed: false,
+      priority,
       createdAt: Date.now()
     };
     setTodos(prev => [newTodo, ...prev]);
@@ -44,14 +45,21 @@ const App: React.FC = () => {
   };
 
   const filteredTodos = useMemo(() => {
+    let list = [...todos];
+    
+    // Apply status filter
     switch (filter) {
       case FilterStatus.ACTIVE:
-        return todos.filter(t => !t.completed);
+        list = list.filter(t => !t.completed);
+        break;
       case FilterStatus.COMPLETED:
-        return todos.filter(t => t.completed);
-      default:
-        return todos;
+        list = list.filter(t => t.completed);
+        break;
     }
+
+    // Sort by priority (High -> Medium -> Low)
+    const priorityOrder = { [Priority.HIGH]: 0, [Priority.MEDIUM]: 1, [Priority.LOW]: 2 };
+    return list.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
   }, [todos, filter]);
 
   const activeCount = todos.filter(t => !t.completed).length;

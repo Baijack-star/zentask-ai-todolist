@@ -1,22 +1,25 @@
 
 import React, { useState } from 'react';
 import { suggestDescription } from '../services/geminiService';
+import { Priority } from '../types';
 
 interface TodoFormProps {
-  onAdd: (title: string, description: string) => void;
+  onAdd: (title: string, description: string, priority: Priority) => void;
 }
 
 export const TodoForm: React.FC<TodoFormProps> = ({ onAdd }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [priority, setPriority] = useState<Priority>(Priority.MEDIUM);
   const [isAiLoading, setIsAiLoading] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (title.trim()) {
-      onAdd(title.trim(), description.trim());
+      onAdd(title.trim(), description.trim(), priority);
       setTitle('');
       setDescription('');
+      setPriority(Priority.MEDIUM);
     }
   };
 
@@ -27,6 +30,12 @@ export const TodoForm: React.FC<TodoFormProps> = ({ onAdd }) => {
     setDescription(suggestion);
     setIsAiLoading(false);
   };
+
+  const priorityOptions = [
+    { value: Priority.LOW, label: 'Low', color: 'bg-emerald-100 text-emerald-700', active: 'bg-emerald-500 text-white' },
+    { value: Priority.MEDIUM, label: 'Medium', color: 'bg-amber-100 text-amber-700', active: 'bg-amber-500 text-white' },
+    { value: Priority.HIGH, label: 'High', color: 'bg-rose-100 text-rose-700', active: 'bg-rose-500 text-white' },
+  ];
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -81,6 +90,26 @@ export const TodoForm: React.FC<TodoFormProps> = ({ onAdd }) => {
           placeholder="Add more details about this task..."
           className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder:text-slate-400 resize-none"
         />
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-semibold text-slate-700">Priority</label>
+        <div className="flex gap-2">
+          {priorityOptions.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setPriority(opt.value)}
+              className={`flex-1 py-2 px-3 rounded-lg text-sm font-bold transition-all border-2 ${
+                priority === opt.value
+                  ? `${opt.active} border-transparent shadow-sm`
+                  : `bg-white text-slate-500 border-slate-100 hover:border-slate-200`
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <button
